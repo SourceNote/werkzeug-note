@@ -3,10 +3,9 @@
     werkzeug.datastructures
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    This module provides mixins and classes with an immutable interface.
-
-    :copyright: (c) 2014 by the Werkzeug Team, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+    本模块提供了不可变接口的数据结构（不可变有一个特点就是可哈希，__hash__）
+    也就是在Python原来的内置数据结构基础上编写了自己特定功能的数据结构
+    比如：不可变字典、不可变列表
 """
 import re
 import codecs
@@ -74,15 +73,9 @@ def native_itermethods(names):
         return cls
     return wrap
 
+# 不可变列表 
 
 class ImmutableListMixin(object):
-
-    """Makes a :class:`list` immutable.
-
-    .. versionadded:: 0.5
-
-    :private:
-    """
 
     _hash_cache = None
 
@@ -127,20 +120,15 @@ class ImmutableListMixin(object):
 
 class ImmutableList(ImmutableListMixin, list):
 
-    """An immutable :class:`list`.
-
-    .. versionadded:: 0.5
-
-    :private:
-    """
-
     def __repr__(self):
         return '%s(%s)' % (
             self.__class__.__name__,
             list.__repr__(self),
         )
 
+###########################################################
 
+# 不可变字典
 class ImmutableDictMixin(object):
 
     """Makes a :class:`dict` immutable.
@@ -193,12 +181,6 @@ class ImmutableDictMixin(object):
 
 class ImmutableMultiDictMixin(ImmutableDictMixin):
 
-    """Makes a :class:`MultiDict` immutable.
-
-    .. versionadded:: 0.5
-
-    :private:
-    """
 
     def __reduce_ex__(self, protocol):
         return type(self), (list(iteritems(self, multi=True)),)
@@ -272,7 +254,7 @@ class TypeConversionDict(dict):
     """Works like a regular dict but the :meth:`get` method can perform
     type conversions.  :class:`MultiDict` and :class:`CombinedMultiDict`
     are subclasses of this class and provide the same feature.
-
+    给字典对象的get方法提供一个类型转换的功能
     .. versionadded:: 0.5
     """
 
@@ -316,7 +298,7 @@ class ImmutableTypeConversionDict(ImmutableDictMixin, TypeConversionDict):
 
     .. versionadded:: 0.5
     """
-
+    # 提供一个可修改的拷贝，对python内置不可修改的对象无效（比如说元祖）
     def copy(self):
         """Return a shallow mutable copy of this object.  Keep in mind that
         the standard library's :func:`copy` function is a no-op for this class
@@ -2633,6 +2615,7 @@ class FileStorage(object):
     attributes of the wrapper stream are proxied by the file storage so
     it's possible to do ``storage.read()`` instead of the long form
     ``storage.stream.read()``.
+    对上传文件对象的一个封装
     """
 
     def __init__(self, stream=None, filename=None, name=None,
@@ -2755,7 +2738,7 @@ class FileStorage(object):
         )
 
 
-# circular dependencies
+# 循环依赖
 from werkzeug.http import dump_options_header, dump_header, generate_etag, \
     quote_header_value, parse_set_header, unquote_etag, quote_etag, \
     parse_options_header, http_date, is_byte_range_valid
