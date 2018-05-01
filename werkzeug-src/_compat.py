@@ -1,5 +1,9 @@
-# flake8: noqa
-# This whole file is full of lint errors
+# coding:utf-8
+
+"""
+本文件下的代码主要用于解决兼容性的问题
+"""
+
 import codecs
 import sys
 import operator
@@ -197,6 +201,10 @@ else:
 
 def to_unicode(x, charset=sys.getdefaultencoding(), errors='strict',
                allow_none_charset=False):
+   
+    """
+    统一将文本转换成unicode表示的功能函数
+    """
     if x is None:
         return None
     if not isinstance(x, bytes):
