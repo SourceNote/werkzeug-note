@@ -4,7 +4,7 @@
     ~~~~~~~~~~~~~~~~~~
 
     This module provides internally used helpers and constants.
-
+    内部使用的辅助代码和常亮
     :copyright: (c) 2014 by the Werkzeug Team, see AUTHORS for more details.
     :license: BSD, see LICENSE for more details.
 """
@@ -30,15 +30,17 @@ _legal_cookie_chars = (string.ascii_letters +
                        string.digits +
                        u"/=!#$%&'*+-.^_`|~:").encode('ascii')
 
+# cookie中符号编码映射
 _cookie_quoting_map = {
     b',': b'\\054',
     b';': b'\\073',
     b'"': b'\\"',
     b'\\': b'\\\\',
 }
+
 for _i in chain(range_type(32), range_type(127, 256)):
     _cookie_quoting_map[int_to_byte(_i)] = ('\\%03o' % _i).encode('latin1')
-
+###########################################################################
 
 _octal_re = re.compile(br'\\[0-3][0-7][0-7]')
 _quote_re = re.compile(br'[\\].')
@@ -159,6 +161,7 @@ def _parse_signature(func):
 def _date_to_unix(arg):
     """Converts a timetuple, integer or datetime object into the seconds from
     epoch in utc.
+    将时间元组、整数、datetime对象转换成utc标准秒
     """
     if isinstance(arg, datetime):
         arg = arg.utctimetuple()
@@ -174,7 +177,11 @@ def _date_to_unix(arg):
 
 class _DictAccessorProperty(object):
 
-    """Baseclass for `environ_property` and `header_property`."""
+    """
+    Baseclass for `environ_property` and `header_property`.
+    environ_property和header_property的基类
+    是一个描述符
+    """
     read_only = False
 
     def __init__(self, name, default=None, load_func=None, dump_func=None,
@@ -221,6 +228,7 @@ class _DictAccessorProperty(object):
 
 
 def _cookie_quote(b):
+    """对cookie进行编码"""
     buf = bytearray()
     all_legal = True
     _lookup = _cookie_quoting_map.get
@@ -238,6 +246,7 @@ def _cookie_quote(b):
 
 
 def _cookie_unquote(b):
+    """对cookie进行解码"""
     if len(b) < 2:
         return b
     if b[:1] != b'"' or b[-1:] != b'"':
@@ -274,7 +283,9 @@ def _cookie_unquote(b):
 
 
 def _cookie_parse_impl(b):
-    """Lowlevel cookie parsing facility that operates on bytes."""
+    """Lowlevel cookie parsing facility that operates on bytes.
+    基于byte操作的低级cookie解析
+    """
     i = 0
     n = len(b)
 
@@ -287,24 +298,25 @@ def _cookie_parse_impl(b):
         value = match.group('val') or b''
         i = match.end(0)
 
-        # Ignore parameters.  We have no interest in them.
+        # 忽略参数，我们对他们不感兴趣
         if key.lower() not in _cookie_params:
             yield _cookie_unquote(key), _cookie_unquote(value)
 
 
 def _encode_idna(domain):
     # If we're given bytes, make sure they fit into ASCII
+    # 确保能转成ASCII
     if not isinstance(domain, text_type):
         domain.decode('ascii')
         return domain
 
-    # Otherwise check if it's already ascii, then return
+    # 或者已经是ASCII，直接返回
     try:
         return domain.encode('ascii')
     except UnicodeError:
         pass
 
-    # Otherwise encode each part separately
+    # 或者分开进行编码
     parts = domain.split('.')
     for idx, part in enumerate(parts):
         parts[idx] = part.encode('idna')
@@ -335,6 +347,9 @@ def _decode_idna(domain):
 
 
 def _make_cookie_domain(domain):
+    """
+    制作/设置cookie域
+    """
     if domain is None:
         return None
     domain = _encode_idna(domain)
